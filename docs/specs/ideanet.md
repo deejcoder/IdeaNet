@@ -70,18 +70,9 @@ When presenting to stakeholders, she exports a clean presentation view that show
 7. **`ideanet-ui`** - React frontend with Chakra UI components
 
 ### Plugin Architecture
-Blocks are designed as independent plugins that can be developed separately and loaded dynamically:
+IdeaNet will support a WebAssembly-based plugin system for runtime extensibility. The plugin architecture enables users to discover and install plugins from a marketplace while the app is running. See [WASM Plugin System Architecture](../architecture/wasm-plugin-system.md) for detailed technical implementation.
 
-```typescript
-interface BlockPlugin {
-  id: string;
-  name: string;
-  version: string;
-  component: React.ComponentType<BlockProps>;
-  schema: BlockSchema;
-  config?: BlockConfig;
-}
-```
+Blocks and other extensible components are designed as independent plugins that can be developed separately and loaded dynamically using the WASM runtime.
 
 ---
 
@@ -89,9 +80,9 @@ interface BlockPlugin {
 
 *Note: Each module has its own detailed PRD with additional user stories:*
 - *Audio Module: See [Audio Module PRD](./modules/audio.md) for US-AUDIO-001 through US-AUDIO-012*
-- *Blocks Module: See [Blocks Module PRD](./modules/blocks.md) for US-BLOCKS-001 through US-BLOCKS-014*
 - *AI Services Module: See [AI Services PRD](./modules/ai-services.md) for US-AI-001 through US-AI-015*
 - *Resources Module: See [Resources Module PRD](./modules/resources.md) for US-RESOURCES-001 through US-RESOURCES-008*
+- *Plugin System: See [WASM Plugin System Architecture](../architecture/wasm-plugin-system.md) for plugin implementation details*
 
 ### 7.1 Project Foundation and Setup (Core Module)
 
@@ -134,39 +125,21 @@ interface BlockPlugin {
   - Error message display for connection failures
   - Basic responsive design for different screen sizes
 
-### 7.1.5 Establish future-ready architecture
-- **ID**: US-001.4
-- **Description**: As a developer, I want the architecture to support future plugin systems and multi-crate modules so that the foundation can scale without major refactoring
-- **Acceptance criteria**:
-  - Code structure that supports future event bus implementation
-  - Module boundaries designed for independent crate development
-  - Interface definitions that can accommodate future audio, AI, and block modules
-  - Configuration system ready for multi-module setup
-  - Documentation of architectural decisions and extension points
+**Note**: User stories US-001.1 through US-001.3 represent the minimal scope for Phase 1 foundation implementation. All other features (business entities, CRUD operations, plugin system, event bus, testing framework) are explicitly deferred to future phases.
 
-**Note**: User stories US-001.1 through US-001.4 represent the minimal scope for Phase 1 foundation implementation. All other features (business entities, CRUD operations, plugin system, event bus, testing framework) are explicitly deferred to future phases.
-
-### 7.1.6 Configure database foundation (Future - Phase 2)
+### 7.1.6 Configure database foundation (Phase 2)
 - **ID**: US-002
-- **Description**: As a developer, I want SurrealDB properly configured with schema and migrations so that data persistence works reliably across all modules
+- **Description**: As a developer, I want SurrealDB properly configured with schema migration system and robust connection management so that data persistence is reliable and can evolve with the application
 - **Acceptance criteria**:
-  - Database schema migration system for version updates  
-  - Database connection pooling and error recovery
-  - Data integrity constraints and validation rules
-  - Business entity definitions and CRUD operations
-  - Performance optimization and indexing strategies
+  - Database schema migration system for version updates and rollbacks
+  - Database connection pooling and automatic error recovery
+  - Database health monitoring and reconnection logic
+  - Configuration management for different environments (dev, test, prod)
+  - Database backup and restore functionality
+  - Performance monitoring and query optimization foundation
+  - Database transaction management patterns
 
-### 7.1.7 Establish module interfaces (Future - Phase 3)
-- **ID**: US-003
-- **Description**: As a developer, I want clear interfaces between modules so that they can be developed independently while maintaining system coherence
-- **Acceptance criteria**:
-  - Event bus implementation for loose coupling between modules
-  - Plugin registry system for dynamic module loading
-  - Error handling patterns consistent across all modules
-  - Module initialization and dependency injection system
-  - Integration test framework for module interactions
-
-### 7.1.8 Integrate UI framework foundation (Future - Phase 2)
+### 7.1.7 Integrate UI framework foundation (Phase 2)
 - **ID**: US-002.1
 - **Description**: As a developer, I want to integrate Chakra UI component library so that the application has consistent, accessible styling from the beginning
 - **Acceptance criteria**:
@@ -176,11 +149,9 @@ interface BlockPlugin {
   - Theme customization for IdeaNet branding
   - Responsive design foundation for different screen sizes
 
-### 7.2 Project Management (Future - Phase 3)
+### 7.2 Project Management (Phase 2-3)
 
-**Note**: All project management features are deferred to Phase 3. The foundation implementation (Phase 1) focuses solely on database connectivity and basic architecture.
-
-### 7.2.1 Create and organize projects (Future - Phase 3)
+### 7.2.1 Create and organize projects (Phase 3)
 - **ID**: US-004
 - **Description**: As a user, I want to create projects with descriptive metadata so that I can organize my ideas around specific goals and themes
 - **Acceptance criteria**:
@@ -190,7 +161,7 @@ interface BlockPlugin {
   - Project templates available for common use cases
   - Duplicate project detection and merging suggestions
 
-### 7.2.2 Navigate project hierarchy (Future - Phase 3)
+### 7.2.2 Navigate project hierarchy (Phase 3)
 - **ID**: US-005
 - **Description**: As a user, I want to see my project structure clearly so that I can understand relationships and quickly access relevant content
 - **Acceptance criteria**:
@@ -200,7 +171,7 @@ interface BlockPlugin {
   - Project search with metadata filtering
   - Recently accessed projects prominently displayed
 
-### 7.2.3 Manage project lifecycle (Future - Phase 3)
+### 7.2.3 Manage project lifecycle (Phase 3)
 - **ID**: US-006
 - **Description**: As a user, I want to track project progress and lifecycle stages so that I can maintain focus and measure advancement
 - **Acceptance criteria**:
@@ -210,10 +181,53 @@ interface BlockPlugin {
   - Archive/restore functionality for completed projects
   - Bulk operations for project management
 
-### 7.3 Audio Recording and Transcription (Audio Module)
+### 7.3 Rich Text Content Creation (Phase 4)
+
+### 7.3.1 Integrate rich text editor
+- **ID**: US-010.1
+- **Description**: As a developer, I want to integrate BlockNote.js rich text editor so that users can create structured, extensible content blocks
+- **Acceptance criteria**:
+  - BlockNote.js integration with custom block support and extensibility
+  - Basic text formatting (bold, italic, headers, lists, links)
+  - Integration between BlockNote editor and Chakra UI design system
+  - Block serialization and deserialization for database storage
+  - Editor toolbar customization for IdeaNet-specific features
+
+### 7.3.2 Create basic content blocks
+- **ID**: US-011
+- **Description**: As a user, I want to organize my ideas using different content block types so that I can structure information appropriately for different purposes
+- **Acceptance criteria**:
+  - Text block with rich formatting support
+  - Heading blocks with multiple levels
+  - List blocks (ordered and unordered)
+  - Quote blocks for highlighting important information
+  - Code blocks with syntax highlighting
+
+### 7.3.3 Link and reference content
+- **ID**: US-013
+- **Description**: As a user, I want to create connections between content so that I can build a network of related ideas and information
+- **Acceptance criteria**:
+  - Internal linking between pages and blocks
+  - Backlinks panel showing incoming references
+  - Link suggestions based on content similarity
+  - Visual indicators for linked content
+  - Link validation and broken link detection
+
+### 7.3.4 Establish future-ready architecture foundation
+- **ID**: US-001.4
+- **Description**: As a developer, I want the architecture to support future WASM plugin systems and multi-crate modules so that the foundation can scale without major refactoring
+- **Acceptance criteria**:
+  - Foundation for WASM-based plugin system that supports runtime loading
+  - Service registry pattern for loose coupling between modules
+  - Event bus foundation for plugin communication
+  - Plugin marketplace integration foundation
+  - Configuration system ready for plugin management
+  - Documentation of WASM plugin architecture and security model
+
+### 7.4 Audio Recording and Transcription (Phase 5)
 *See [Audio Module PRD](./modules/audio.md) for detailed technical implementation*
 
-### 7.3.1 Capture high-quality audio
+### 7.4.1 Capture high-quality audio
 - **ID**: US-007
 - **Description**: As a user, I want to record clear audio from multiple sources so that I can capture ideas naturally through speech
 - **Acceptance criteria**:
@@ -223,7 +237,7 @@ interface BlockPlugin {
   - Real-time audio level indicators and quality feedback
   - Background noise reduction and audio enhancement options
 
-### 7.3.2 Process audio intelligently
+### 7.4.2 Process audio intelligently
 - **ID**: US-008
 - **Description**: As a user, I want my audio recordings automatically processed and transcribed so that they become searchable and actionable content
 - **Acceptance criteria**:
@@ -233,7 +247,7 @@ interface BlockPlugin {
   - Confidence scoring for transcription accuracy
   - Manual transcription correction with learning feedback
 
-### 7.3.3 Navigate audio content
+### 7.4.3 Navigate audio content
 - **ID**: US-009
 - **Description**: As a user, I want to interact with audio recordings through their transcriptions so that I can quickly find and reference specific moments
 - **Acceptance criteria**:
@@ -243,70 +257,17 @@ interface BlockPlugin {
   - A-B repeat functionality for focused listening
   - Audio bookmarking for important segments
 
-### 7.3.4 Integrate audio with other content
+### 7.4.4 Integrate audio with other content
 - **ID**: US-010
 - **Description**: As a user, I want to embed audio recordings and transcriptions into my project documentation so that spoken ideas become part of my structured thinking
 - **Acceptance criteria**:
-  - Audio block plugin with embedded player and transcription
+  - Audio block with embedded player and transcription
   - Export transcription text to other blocks or external formats
   - Link audio segments to related notes and resources
   - Audio summary generation using AI analysis
   - Collaborative commenting on specific audio timestamps
 
-### 7.3.5 Integrate rich text editor (Future - Phase 4)
-- **ID**: US-010.1
-- **Description**: As a developer, I want to integrate BlockNote.js rich text editor so that users can create structured, extensible content blocks
-- **Acceptance criteria**:
-  - BlockNote.js integration with custom block support and extensibility
-  - Custom block plugins foundation for future extensible content types
-  - Integration between BlockNote editor and Chakra UI design system
-  - Block serialization and deserialization for database storage
-  - Editor toolbar customization for IdeaNet-specific features
-
-### 7.4 Block System and Content Creation (Blocks Module)
-*See [Blocks Module PRD](./modules/blocks.md) for detailed plugin architecture*
-
-### 7.4.1 Create structured content blocks
-- **ID**: US-011
-- **Description**: As a user, I want to organize my ideas using different content block types so that I can structure information appropriately for different purposes
-- **Acceptance criteria**:
-  - Idea block with title, description, priority, and status tracking
-  - Implementation plan block with steps, timeline, and dependencies
-  - Research block with questions, sources, and findings
-  - Decision block with options, criteria, and rationale
-  - Reference block for external sources with metadata
-
-### 7.4.2 Customize block behavior
-- **ID**: US-012
-- **Description**: As a user, I want to configure how blocks behave and display so that they match my workflow preferences
-- **Acceptance criteria**:
-  - Block templates with pre-configured fields and layouts
-  - Custom field addition for specialized use cases
-  - Block styling and theme customization
-  - Conditional logic for showing/hiding fields based on content
-  - Block validation rules for required fields and data quality
-
-### 7.4.3 Link and reference blocks
-- **ID**: US-013
-- **Description**: As a user, I want to create connections between blocks so that I can build a network of related ideas and information
-- **Acceptance criteria**:
-  - Bidirectional linking between blocks with relationship types
-  - Visual graph view of block connections
-  - Backlinks panel showing incoming references
-  - Link suggestions based on content similarity
-  - Bulk link operations for connecting related content
-
-### 7.4.4 Extend functionality with plugins
-- **ID**: US-014
-- **Description**: As a developer, I want to create custom block types so that I can extend IdeaNet's functionality for specialized use cases
-- **Acceptance criteria**:
-  - Plugin development SDK with TypeScript definitions
-  - Block registration and lifecycle management
-  - Plugin store for discovering and installing extensions
-  - Sandbox security model for third-party plugins
-  - Plugin versioning and compatibility management
-
-### 7.5 AI-Powered Assistance (AI Services Module)
+### 7.5 AI-Powered Assistance (Phase 6)
 *See [AI Services Module PRD](./modules/ai-services.md) for detailed AI integration*
 
 ### 7.5.1 Generate contextual suggestions
@@ -349,7 +310,7 @@ interface BlockPlugin {
   - Summary generation for complex content
   - Presentation outline creation from project content
 
-### 7.6 Resource Management (Resources Module)
+### 7.6 Resource Management (Phase 6)
 *See [Resources Module PRD](./modules/resources.md) for detailed resource handling*
 
 ### 7.6.1 Link external resources flexibly
@@ -392,7 +353,7 @@ interface BlockPlugin {
   - Storage quota warnings and management tools
   - Export/backup options for data portability
 
-### 7.7 Search and Discovery (Core Module)
+### 7.7 Search and Discovery (Phase 6-7)
 
 ### 7.7.1 Search across all content
 - **ID**: US-023
@@ -424,9 +385,52 @@ interface BlockPlugin {
   - Onboarding tooltips and progressive disclosure of features
   - Template suggestions based on user goals and project type
 
-### 7.8 Export and Sharing (Core Module)
+### 7.8 WASM Plugin System (Phase 7-8)
+*See [WASM Plugin System Architecture](../architecture/wasm-plugin-system.md) for detailed implementation*
 
-### 7.8.1 Export projects in multiple formats
+### 7.8.1 Establish module interfaces and event bus
+- **ID**: US-003
+- **Description**: As a developer, I want clear interfaces between modules so that they can be developed independently while maintaining system coherence
+- **Acceptance criteria**:
+  - Event bus implementation for loose coupling between modules
+  - Plugin registry system for WASM module loading
+  - Error handling patterns consistent across all modules
+  - Module initialization and dependency injection system
+  - Integration test framework for module interactions
+
+### 7.8.2 Implement WASM plugin runtime
+- **ID**: US-014
+- **Description**: As a developer, I want to create a WASM plugin runtime so that users can install and run plugins securely
+- **Acceptance criteria**:
+  - WASM plugin loader with sandbox security model
+  - Plugin capability system for permission management
+  - Plugin lifecycle management (load, initialize, shutdown, unload)
+  - Inter-plugin communication through event bus
+  - Plugin hot-reload support for development
+
+### 7.8.3 Create plugin marketplace integration
+- **ID**: US-030
+- **Description**: As a user, I want to discover and install plugins from a marketplace so that I can extend the application's functionality
+- **Acceptance criteria**:
+  - Plugin store with search and discovery functionality
+  - One-click plugin installation and updates
+  - Plugin ratings, reviews, and usage statistics
+  - Plugin signature verification for security
+  - Installed plugin management interface
+
+### 7.8.4 Develop plugin SDK and tooling
+- **ID**: US-031
+- **Description**: As a plugin developer, I want development tools and SDK so that I can create plugins efficiently
+- **Acceptance criteria**:
+  - Plugin development kit with Rust and TypeScript support
+  - Plugin template and scaffolding tools
+  - Local plugin testing and debugging tools
+  - Plugin publishing and deployment tools
+  - Comprehensive documentation and examples
+
+### 7.9 Export and Sharing (Phase 8)
+
+### 7.9.1 Export projects in multiple formats
 - **ID**: US-026
 - **Description**: As a user, I want to export my projects in various formats so that I can share them appropriately with different audiences
 - **Acceptance criteria**:
@@ -436,7 +440,7 @@ interface BlockPlugin {
   - Presentation mode with slides generated from project structure
   - JSON export for data portability and integration
 
-### 7.8.2 Create shareable project views
+### 7.9.2 Create shareable project views
 - **ID**: US-027
 - **Description**: As a user, I want to create focused views of my projects so that I can share relevant information without exposing sensitive details
 - **Acceptance criteria**:
@@ -446,9 +450,9 @@ interface BlockPlugin {
   - Embedded view widgets for external websites
   - Analytics on shared content engagement
 
-### 7.9 Collaboration Features (Core Module)
+### 7.10 Collaboration Features (Phase 8)
 
-### 7.9.1 Comment and annotate content
+### 7.10.1 Comment and annotate content
 - **ID**: US-028
 - **Description**: As a collaborator, I want to add comments and annotations to project content so that I can provide feedback and suggestions
 - **Acceptance criteria**:
@@ -458,7 +462,7 @@ interface BlockPlugin {
   - @mention notifications for team members
   - Comment export and archive capabilities
 
-### 7.9.2 Track changes and versions
+### 7.10.2 Track changes and versions
 - **ID**: US-029
 - **Description**: As a user, I want to see how content has changed over time so that I can understand the evolution of ideas and revert if needed
 - **Acceptance criteria**:
@@ -477,7 +481,6 @@ interface BlockPlugin {
 - **US-001.1**: Database connection foundation with SurrealDB
 - **US-001.2**: Clean DDD architecture implementation  
 - **US-001.3**: Basic database connection UI for testing
-- **US-001.4**: Future-ready architecture design
 - **Deliverable**: Working database connectivity with health checking UI
 
 **Explicitly Out of Scope for Phase 1:**
@@ -487,44 +490,46 @@ interface BlockPlugin {
 - ❌ Unit/integration testing (deferred to Phase 2)
 - ❌ BlockNote.js, Chakra UI integration
 
-### Phase 2: Testing & Core Entities (Future - Weeks 3-6)
-- **US-002**: Database schema, migrations, and entity persistence
+### Phase 2: Core Infrastructure (Weeks 3-6)
+- **US-002**: Database infrastructure (migrations, pooling, monitoring, transactions)
 - **US-002.1**: Chakra UI component library integration and theming
 - **Testing framework**: Unit and integration test implementation
-- **US-004, US-005, US-006**: Basic project management features
-- **Deliverable**: Reliable data persistence with project CRUD operations and consistent UI
+- **Deliverable**: Robust database infrastructure with consistent UI foundation
 
-### Phase 3: Module Architecture (Future - Weeks 7-10)  
-- **US-003**: Event bus and module interface implementation
-- **US-019, US-020**: Resource linking and organization
+### Phase 3: Project Management (Weeks 7-10)  
+- **US-004, US-005, US-006**: Complete project management features
 - **US-023**: Basic search functionality
-- **Deliverable**: Modular architecture ready for plugin development
+- **Deliverable**: Full project CRUD operations with search
 
-### Phase 4: Content Creation & Block System (Future - Weeks 11-14)
+### Phase 4: Rich Text Content Creation (Weeks 11-14)
 - **US-010.1**: BlockNote.js rich text editor integration
-- **US-011, US-012**: Basic block system and customization
-- **Deliverable**: Rich content creation with extensible block system
+- **US-011**: Basic content blocks (text, headers, lists, quotes, code)
+- **US-013**: Internal linking and references
+- **US-001.4**: Future-ready architecture foundation with WASM plugin system design
+- **Deliverable**: Rich content creation with linking capabilities and plugin architecture foundation
 
-### Phase 5: Audio Integration (Future - Weeks 15-18)
+### Phase 5: Audio Integration (Weeks 15-18)
 - **US-007, US-008**: Audio recording and transcription
 - **US-009, US-010**: Audio navigation and integration
 - **Audio module**: Complete implementation with Whisper integration
-- **Deliverable**: Full audio-to-text workflow
+- **Deliverable**: Full audio-to-text workflow integrated with content blocks
 
-### Phase 6: AI Integration (Future - Weeks 19-22)
+### Phase 6: AI Integration & Resources (Weeks 19-22)
 - **US-015, US-016**: AI suggestions and research assistance
 - **US-017, US-018**: Implementation planning and content enhancement
-- **AI service**: Architecture and context-aware assistance
-- **Deliverable**: Intelligent content suggestions and analysis
-
-### Phase 7: Advanced Features (Future - Weeks 23-26)
-- **US-013, US-014**: Block linking and plugin system
+- **US-019, US-020**: Resource linking and organization
 - **US-021, US-022**: Rich media and storage management
-- **US-024, US-025**: Content discovery and empty states
-- **Deliverable**: Full plugin ecosystem and advanced UI
+- **Deliverable**: Intelligent content assistance with resource management
 
-### Phase 8: Collaboration and Polish (Future - Weeks 27-30)
+### Phase 7: Advanced Features & Plugin Foundation (Weeks 23-26)
+- **US-024, US-025**: Content discovery and empty states
+- **US-003**: Event bus and module interface implementation
+- **US-014**: WASM plugin runtime with security model
+- **Deliverable**: Plugin runtime ready for marketplace integration
+
+### Phase 8: Plugin Marketplace & Collaboration (Weeks 27-30)
+- **US-030**: Plugin marketplace integration with discovery and installation
+- **US-031**: Plugin SDK and development tooling
 - **US-026, US-027**: Export and sharing capabilities
 - **US-028, US-029**: Collaboration features
-- **Performance optimization**: User experience polish
-- **Deliverable**: Production-ready application with collaboration
+- **Deliverable**: Production-ready application with full plugin ecosystem
